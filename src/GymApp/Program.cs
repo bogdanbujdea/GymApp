@@ -1,10 +1,15 @@
+using GymApp.Infrastructure;
 using GymApp.Storage;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(); 
+builder.Services.AddHealthChecks()
+    .AddCheck<StartupHealthCheck>("Startup", tags: new[] { "startup" })
+    .AddCheck<ReadyHealthCheck>("Ready", tags: new[] { "ready" });
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var connectionString = builder.Configuration["SQL_CONNECTION_STRING"];
@@ -37,6 +42,9 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+app.MapHealthChecks();
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
