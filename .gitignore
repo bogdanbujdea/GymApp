@@ -9,3 +9,7 @@ ContainerTestApp/Properties/PublishProfiles/test-container.pubxml
 ContainerTestApp/Properties/PublishProfiles/test-container.pubxml.user
 
 ContainerTestApp/ContainerTestApp.csproj.user
+
+src/GymApp/Properties/PublishProfiles/gym-app-container.pubxml
+
+src/GymApp/Properties/PublishProfiles/gym-app-container.pubxml.user

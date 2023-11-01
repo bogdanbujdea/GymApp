@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace GymApp.Infrastructure
+namespace GymApp.Infrastructure.HealthChecks
 {
-    public static class Healthchecks
+    public static class HealthChecks
     {
-        public static void MapHealthChecks(this WebApplication app)
+        public static void SetupHealthChecks(this WebApplication app)
         {
             app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
             {

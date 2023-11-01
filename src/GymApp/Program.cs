@@ -1,12 +1,11 @@
-using GymApp.Infrastructure;
+using GymApp.Infrastructure.HealthChecks;
+using GymApp.Infrastructure.Security;
+using GymApp.Infrastructure.Swagger;
 using GymApp.Storage;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); 
 builder.Services.AddHealthChecks()
     .AddCheck<StartupHealthCheck>("Startup", tags: new[] { "startup" })
     .AddCheck<ReadyHealthCheck>("Ready", tags: new[] { "ready" });
@@ -15,35 +14,37 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     var connectionString = builder.Configuration["SQL_CONNECTION_STRING"];
     options.UseSqlServer(connectionString);
 });
+
+builder.SetupSwagger();
+builder.SetupAuthenticationWithAuth0();
+
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("/", () => "Hello BetterChoices!");
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
 
-app.MapHealthChecks();
+app.MapGet("/users", async (AppDbContext dbContext) =>
+{
+    Console.WriteLine($"Retrieving users from db");
+    return await dbContext.Users.ToListAsync();
+}).RequireAuthorization("exerciseapp:read-write");
+
+app.MapPost("/users", async (AppUser user, AppDbContext dbContext) =>
+{
+    Console.WriteLine($"Adding user in SQL db");
+
+    dbContext.Users.Add(user);
+    await dbContext.SaveChangesAsync();
+
+    return user;
+});
+app.SetupHealthChecks();
 
 using (var scope = app.Services.CreateScope())
 {
