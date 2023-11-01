@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 namespace GymApp.Storage;
 
 public class AppUser
