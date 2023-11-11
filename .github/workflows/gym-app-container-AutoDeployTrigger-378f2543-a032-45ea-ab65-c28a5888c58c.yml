@@ -1,42 +1,92 @@
-name: Trigger auto deployment for gym-app-container
-
-# When this action will be executed
-on:
-  # Automatically trigger it when detected changes in repo
-  push:
-    branches: 
-      [ main ]
-    paths:
-    - '**'
-    - '.github/workflows/gym-app-container-AutoDeployTrigger-378f2543-a032-45ea-ab65-c28a5888c58c.yml'
-
-  # Allow manual trigger 
-  workflow_dispatch:
-      
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout to the branch
-        uses: actions/checkout@v2
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.GYMAPPCONTAINER_AZURE_CREDENTIALS }}
-
-      - name: Build and push container image to registry
-        uses: azure/container-apps-deploy-action@v1
-        with:
-          appSourcePath: ${{ github.workspace }} 
-          registryUrl: gymappregistry.azurecr.io
-          registryUsername: ${{ secrets.GYMAPPCONTAINER_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.GYMAPPCONTAINER_REGISTRY_PASSWORD }}
-          containerAppName: gym-app-container
-          resourceGroup: rg-gym-app
-          imageToBuild: gymappregistry.azurecr.io/gym-app-container:${{ github.sha }}
+#name: Trigger auto deployment for gym-app-container
+#
+## When this action will be executed
+#on:
+#  # Automatically trigger it when detected changes in repo
+#  push:
+#    branches: 
+#      [ main ]
+#    paths:
+#    - '**'
+#    - '.github/workflows/gym-app-container-AutoDeployTrigger-378f2543-a032-45ea-ab65-c28a5888c58c.yml'
+#
+#  # Allow manual trigger 
+#  workflow_dispatch:
+#      
+#jobs:
+#  build-and-deploy:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout to the branch
+#        uses: actions/checkout@v2
+#
+#      - name: Azure Login
+#        uses: azure/login@v1
+#        with:
+#          creds: ${{ secrets.GYMAPPCONTAINER_AZURE_CREDENTIALS }}
+#
+#      - name: Build and push container image to registry
+#        uses: azure/container-apps-deploy-action@v1
+#        with:
+#          appSourcePath: ${{ github.workspace }} 
+#          registryUrl: gymappregistry.azurecr.io
+#          registryUsername: ${{ secrets.GYMAPPCONTAINER_REGISTRY_USERNAME }}
+#          registryPassword: ${{ secrets.GYMAPPCONTAINER_REGISTRY_PASSWORD }}
+#          containerAppName: gym-app-container
+#          resourceGroup: rg-gym-app
+#          imageToBuild: gymappregistry.azurecr.io/gym-app-container:${{ github.sha }}
           
 
      
 
+name: Build and deploy .NET application to container app gym
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup_acr_and_push_image:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env: [dev, qa, prod]
+    steps:
+    - name: Checkout to the branch
+      uses: actions/checkout@v3
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.GYMAPPCONTAINER_AZURE_CREDENTIALS }}
+    - name: Set environment variables from json
+      run: |
+        echo "CONFIG_VALUES=$(cat ./configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
+    - name: Deploy ACR using Bicep
+      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./bicep/registry.bicep --parameters $CONFIG_VALUES
+    - name: Log in to container registry
+      run: az acr login --name ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}
+    - name: Build and push container image to registry
+      run: |
+        docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} ../../src/GymApp/Dockerfile
+        docker push ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: setup_acr_and_push_image
+    strategy:
+      matrix:
+        env: [dev, qa, prod]
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.GYMAPPCONTAINER_AZURE_CREDENTIALS }}
+    - name: Set environment variables from json
+      run: |
+        echo "CONFIG_VALUES=$(cat ./configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
+    - name: Deploy to containerapp
+      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./bicep/main.bicep --parameters $CONFIG_VALUES
+    - name: Logout
+      run: az logout

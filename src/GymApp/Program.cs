@@ -29,7 +29,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/", () => "Hello BetterChoices!");
+app.MapGet("/", () => "Hello gymapp!");
 
 app.MapGet("/users", async (AppDbContext dbContext) =>
 {
