@@ -18,9 +18,13 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.GYMAPP_AZURE_CREDENTIALS }}
+#    - name: Set environment variables from json
+#      run: |
+#        echo "CONFIG_VALUES=$(cat ./infrastructure/configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
     - name: Set environment variables from json
       run: |
-        echo "CONFIG_VALUES=$(cat ./infrastructure/configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
+        echo "CONFIG_VALUES=$(jq -c . < ./infrastructure/configurations/qa.json)" >> $GITHUB_ENV
+      
     - name: Deploy ACR using Bicep
       run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./infrastructure/containerRegistry.bicep --parameters $CONFIG_VALUES
     - name: Log in to container registry
