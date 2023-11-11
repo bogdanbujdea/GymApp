@@ -17,7 +17,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.GYMAPPDEVCONTAINER_AZURE_CREDENTIALS }}
+        creds: ${{ secrets.GYMAPP_AZURE_CREDENTIALS }}
     - name: Set environment variables from json
       run: |
         echo "CONFIG_VALUES=$(cat ./infrastructure/configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
@@ -40,7 +40,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.GYMAPPDEVCONTAINER_AZURE_CREDENTIALS }}
+        creds: ${{ secrets.GYMAPP_AZURE_CREDENTIALS }}
     - name: Set environment variables from json
       run: |
         echo "CONFIG_VALUES=$(cat ./infrastructure/configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
