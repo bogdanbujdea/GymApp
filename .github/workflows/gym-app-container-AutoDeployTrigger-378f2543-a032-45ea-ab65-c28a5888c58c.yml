@@ -25,6 +25,8 @@ jobs:
       run: |
         echo "CONFIG_VALUES=$(jq -c . < ./infrastructure/configurations/qa.json)" >> $GITHUB_ENV
       
+    - name: Deploy resource group
+      run: az group create --name ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --location $location
     - name: Deploy ACR using Bicep
       run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./infrastructure/containerRegistry.bicep --parameters $CONFIG_VALUES
     - name: Log in to container registry
