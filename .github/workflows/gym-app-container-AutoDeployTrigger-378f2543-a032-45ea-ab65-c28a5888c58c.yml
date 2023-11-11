@@ -18,23 +18,16 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.GYMAPPDEVCONTAINER_AZURE_CREDENTIALS }}
-    - name: Print ls
-      run: ls
-    - name: Print configs
-      run: ls ./configurations
-    - name: Print config values
-      run: cat ./configurations/${{ matrix.env }}.json
-      
     - name: Set environment variables from json
       run: |
-        echo "CONFIG_VALUES=$(cat ./configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
+        echo "CONFIG_VALUES=$(cat ./infrastructure/configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
     - name: Deploy ACR using Bicep
-      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./containerRegistry.bicep --parameters $CONFIG_VALUES
+      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./infrastructure/containerRegistry.bicep --parameters $CONFIG_VALUES
     - name: Log in to container registry
       run: az acr login --name ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}
     - name: Build and push container image to registry
       run: |
-        docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} ../../src/GymApp/Dockerfile
+        docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} ./src/GymApp/Dockerfile
         docker push ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }}
 
   deploy:
@@ -50,8 +43,8 @@ jobs:
         creds: ${{ secrets.GYMAPPDEVCONTAINER_AZURE_CREDENTIALS }}
     - name: Set environment variables from json
       run: |
-        echo "CONFIG_VALUES=$(cat ./configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
+        echo "CONFIG_VALUES=$(cat ./infrastructure/configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
     - name: Deploy to containerapp
-      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./main.bicep --parameters $CONFIG_VALUES
+      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./infrastructure/main.bicep --parameters $CONFIG_VALUES
     - name: Logout
       run: az logout
