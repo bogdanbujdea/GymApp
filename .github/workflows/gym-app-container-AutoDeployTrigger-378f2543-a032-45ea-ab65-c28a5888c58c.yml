@@ -18,6 +18,13 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.GYMAPPDEVCONTAINER_AZURE_CREDENTIALS }}
+    - name: Print ls
+      run: ls
+    - name: Print configs
+      run: ls ./configurations
+    - name: Print config values
+      run: cat ./configurations/${{ matrix.env }}.json
+      
     - name: Set environment variables from json
       run: |
         echo "CONFIG_VALUES=$(cat ./configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
