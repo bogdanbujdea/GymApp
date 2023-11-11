@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "location": {
+        "value": "eastus"
+      }, 
+      "resourceGroupName": {
+        "value": "rg-gymapp-dev"
+      },
+      "containerAppName": {
+        "value": "gym-app"
+      },
+      "managedEnvironmentName": {
+        "value": "gym-app-env"
+      },
+      "envName":{
+        "value": "dev"
+      },      
+      "acrName":{
+        "value": "gymappregistry"
+      }
+    }
+  }

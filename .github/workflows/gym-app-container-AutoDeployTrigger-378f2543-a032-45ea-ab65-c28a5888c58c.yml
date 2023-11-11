@@ -59,12 +59,12 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.GYMAPPCONTAINER_AZURE_CREDENTIALS }}
+        creds: ${{ secrets.GYMAPPDEVCONTAINER_AZURE_CREDENTIALS }}
     - name: Set environment variables from json
       run: |
         echo "CONFIG_VALUES=$(cat ./configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
     - name: Deploy ACR using Bicep
-      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./bicep/registry.bicep --parameters $CONFIG_VALUES
+      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./containerRegistry.bicep --parameters $CONFIG_VALUES
     - name: Log in to container registry
       run: az acr login --name ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}
     - name: Build and push container image to registry
@@ -82,11 +82,11 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.GYMAPPCONTAINER_AZURE_CREDENTIALS }}
+        creds: ${{ secrets.GYMAPPDEVCONTAINER_AZURE_CREDENTIALS }}
     - name: Set environment variables from json
       run: |
         echo "CONFIG_VALUES=$(cat ./configurations/${{ matrix.env }}.json)" >> $GITHUB_ENV
     - name: Deploy to containerapp
-      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./bicep/main.bicep --parameters $CONFIG_VALUES
+      run: az deployment group create --resource-group ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --template-file ./main.bicep --parameters $CONFIG_VALUES
     - name: Logout
       run: az logout
