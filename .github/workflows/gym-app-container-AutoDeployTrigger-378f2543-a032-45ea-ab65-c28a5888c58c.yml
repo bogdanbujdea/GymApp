@@ -29,6 +29,8 @@ jobs:
       run: az group create --name ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --location 'westeurope'
     - name: Log in to container registry
       run: az acr login --name 'gymappcontainers'
+    - name: Print ls
+      run: ls
     - name: Build and push container image to registry 
       uses: azure/container-apps-deploy-action@v2 
       with: 
@@ -39,7 +41,7 @@ jobs:
         containerAppName: gym-app-dev-container-test 
         resourceGroup: ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }}
         imageToBuild: gymappcontainers.azurecr.io/gym-app-dev-container-test:${{ github.sha }} 
-        dockerfilePath: Dockerfile 
+        dockerfilePath: ./src/GymApp/Dockerfile 
     - name: Build and push container image to registry
       run: |
         docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} ./src/GymApp/Dockerfile
