@@ -37,7 +37,7 @@ jobs:
         registryUsername: ${{ secrets.GYM_APP_REGISTRY_USERNAME }} 
         registryPassword: ${{ secrets.GYM_APP_REGISTRY_PASSWORD }} 
         containerAppName: gym-app-dev-container-test 
-        resourceGroup: rg-gym-app 
+        resourceGroup: ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }}
         imageToBuild: gymappcontainers.azurecr.io/gym-app-dev-container-test:${{ github.sha }} 
         dockerfilePath: ./src./GymApp/Dockerfile 
     - name: Build and push container image to registry
