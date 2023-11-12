@@ -39,7 +39,7 @@ jobs:
         containerAppName: gym-app-dev-container-test 
         resourceGroup: ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }}
         imageToBuild: gymappcontainers.azurecr.io/gym-app-dev-container-test:${{ github.sha }} 
-        dockerfilePath: ./src./GymApp/Dockerfile 
+        dockerfilePath: Dockerfile 
     - name: Build and push container image to registry
       run: |
         docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} ./src/GymApp/Dockerfile
