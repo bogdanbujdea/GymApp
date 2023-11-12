@@ -31,19 +31,19 @@ jobs:
       run: az acr login --name 'gymappcontainers'
     - name: Print ls
       run: ls
-    - name: Build and push container image to registry 
-      uses: azure/container-apps-deploy-action@v2 
-      with: 
-        appSourcePath: ${{ github.workspace }}  
-        registryUrl: gymappcontainers.azurecr.io 
-        registryUsername: ${{ secrets.GYM_APP_REGISTRY_USERNAME }} 
-        registryPassword: ${{ secrets.GYM_APP_REGISTRY_PASSWORD }} 
-        containerAppName: gym-app-dev-container-test 
-        resourceGroup: ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }}
-        imageToBuild: gymappcontainers.azurecr.io/gym-app-dev-container-test:${{ github.sha }} 
+#    - name: Build and push container image to registry 
+#      uses: azure/container-apps-deploy-action@v2 
+#      with: 
+#        appSourcePath: ${{ github.workspace }}  
+#        registryUrl: gymappcontainers.azurecr.io 
+#        registryUsername: ${{ secrets.GYM_APP_REGISTRY_USERNAME }} 
+#        registryPassword: ${{ secrets.GYM_APP_REGISTRY_PASSWORD }} 
+#        containerAppName: gym-app-dev-container-test 
+#        resourceGroup: ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }}
+#        imageToBuild: gymappcontainers.azurecr.io/gym-app-dev-container-test:${{ github.sha }} 
     - name: Build and push container image to registry
       run: |
-        docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} ./src/GymApp/Dockerfile
+        docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} 
         docker push ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }}
 
   deploy:

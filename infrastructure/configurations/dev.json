@@ -18,7 +18,10 @@
         "value": "dev"
       },      
       "acrName":{
-        "value": "gymappregistry"
+        "value": "gymappcontainers"
+      },    
+      "dockerName":{
+        "value": "gymappdocker"
       }
     }
   }
