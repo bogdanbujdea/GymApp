@@ -36,7 +36,9 @@ jobs:
         registryUrl: gymappcontainers.azurecr.io 
         registryUsername: ${{ secrets.GYM_APP_REGISTRY_USERNAME }} 
         registryPassword: ${{ secrets.GYM_APP_REGISTRY_PASSWORD }} 
-    
+        containerAppName: gym-app-dev-container-test 
+        resourceGroup: ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }}
+        runtimeStack: 'dotnetcore:7.0'    
     - name: Build and push container image to registry
       run: |
         docker build -t ${{ fromJson(env.CONFIG_VALUES).parameters.acrName.value }}.azurecr.io/${{ fromJson(env.CONFIG_VALUES).parameters.dockerName.value }}:${{ github.sha }} ../..
