@@ -33,7 +33,6 @@ jobs:
       uses: azure/container-apps-deploy-action@v1
       with: 
         appSourcePath: ${{ github.workspace }}  
-        acrName: gymappcontainers
         registryUrl: gymappcontainers.azurecr.io 
         registryUsername: ${{ secrets.GYM_APP_REGISTRY_USERNAME }} 
         registryPassword: ${{ secrets.GYM_APP_REGISTRY_PASSWORD }} 
