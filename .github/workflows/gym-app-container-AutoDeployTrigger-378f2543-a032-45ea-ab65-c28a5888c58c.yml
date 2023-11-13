@@ -34,6 +34,9 @@ jobs:
       with: 
         appSourcePath: ${{ github.workspace }}  
         acrName: gymappcontainers
+        registryUrl: gymappcontainers.azurecr.io 
+        registryUsername: ${{ secrets.GYM_APP_REGISTRY_USERNAME }} 
+        registryPassword: ${{ secrets.GYM_APP_REGISTRY_PASSWORD }} 
     
     - name: Build and push container image to registry
       run: |
