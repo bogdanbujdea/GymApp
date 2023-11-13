@@ -29,8 +29,6 @@ jobs:
       run: az group create --name ${{ fromJson(env.CONFIG_VALUES).parameters.resourceGroupName.value }} --location 'westeurope'
     - name: Log in to container registry
       run: az acr login --name 'gymappcontainers'
-    - name: Print ls
-      run: ls
     - name: Build and push container image to registry 
       uses: azure/container-apps-deploy-action@v1
       with: 
