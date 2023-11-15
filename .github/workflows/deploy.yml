@@ -68,7 +68,10 @@ jobs:
       - name: Bicep deployment
         id: bicepDeployment
         run: |
+          echo ${{ vars.AZURE_RG }}
+          az group create --name ${{ vars.AZURE_RG }} --location westeurope
           az group create --name '${{ vars.AZURE_RG }}' --location westeurope
+          echo "created resource group"
           az deployment group create --resource-group ${{ vars.AZURE_RG }} --template-file ./infrastructure/main.bicep --parameters applicationName='${{ vars.APP_NAME }}' --parameters containerRegistryName='${{ vars.REGISTRY_NAME }}'
       - name: Get ACR name
         id: getacrname
