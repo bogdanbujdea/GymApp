@@ -1,0 +1,25 @@
+name: Build and deploy .NET application to container app gym
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '7.0.x'
+
+jobs:
+  build-api-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@main
+      - name: 'Setup dotnet'
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: 'Install Dependencies'
+        run: dotnet restore
+      - name: 'Build project'
+        run: dotnet build --no-restore
