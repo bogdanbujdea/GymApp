@@ -29,12 +29,6 @@ jobs:
     needs: [build-api-project]
     environment: Development
     steps:
-      - name: 'Output env'
-        run: echo "Rg name is ${{ env.AZURE_RG }}"
-      - name: 'Output vars'
-        run: echo "Rg name is ${{vars.AZURE_RG}}"
-      - name: 'Output v2'
-        run: echo "Rg name is $AZURE_RG"
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
 
@@ -42,7 +36,11 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.GYMAPP_AZURE_CREDENTIALS }}
-
+      - name: Bicep deployment
+        id: bicepDeployment
+        run: |
+          az group create --name '${{ vars.AZURE_RG }}' --location 'westeurope'
+          az deployment group create --resource-group ${{ vars.AZURE_RG }} --template-file ./infrastructure/main.bicep --parameters applicationName=bbcgymdev --parameters containerRegistryName=bbcgymdevregistry
       - name: Get ACR name
         id: getacrname
         run: |
