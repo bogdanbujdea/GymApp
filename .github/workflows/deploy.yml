@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   DOTNET_VERSION: '7.0.x'
+  AZURE_RG: ${{vars.AZURE_RG}}
 
 jobs:
   build-api-project:
@@ -26,8 +28,16 @@ jobs:
   build-container-image:
     runs-on: ubuntu-latest
     needs: [build-api-project]
-    environment: Development
+    strategy:
+      matrix:
+        environment: [Development, Preview, Production]
     steps:
+      - name: 'Output env'
+        run: echo "Rg name is ${{ env.AZURE_RG }}"
+      - name: 'Output vars'
+        run: echo "Rg name is ${{vars.AZURE_RG}}"
+      - name: 'Output v2'
+        run: echo "Rg name is $AZURE_RG"
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
 
@@ -63,11 +73,33 @@ jobs:
           docker build -f ./Dockerfile . -t ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
           docker push ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
 
+  deploy-to-dev-or-preview:
+    runs-on: ubuntu-latest
+    needs: build-container-image
+    strategy:
+      matrix:
+        environment: [development, preview]
+    steps:
+      - name: Checkout GitHub Action
+        uses: actions/checkout@v2
+  
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.GYMAPP_AZURE_CREDENTIALS }}
+  
+      - name: Deploy to Azure Container App (Development or Preview)
+        run: |
+          az containerapp update \
+            --name gym-api-${{ matrix.environment }} \
+            --resource-group ${{ vars.AZURE_RG }} \
+            --image ${{ needs.build-container-image.outputs.acr_login_server }}/gymapi:${{ github.sha }}
+            # Add other necessary flags and settings
 
   deploy-to-blue:
     runs-on: ubuntu-latest
     needs: [build-container-image]
-    environment: Development
+    environment: Production
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
@@ -123,7 +155,7 @@ jobs:
   promote-to-green:
     runs-on: ubuntu-latest
     needs: [deploy-to-blue]
-    environment: Development
+    environment: Production
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
