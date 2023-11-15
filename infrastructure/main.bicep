@@ -30,11 +30,10 @@ param minReplica int = 1
 param maxReplica int = 30
 
 var tags = {
-  DeploymentScenario: 'BlueGreen'
-  Owner: 'Will Velida'
+  Owner: 'Bogdan Bujdea'
 }
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: containerRegistryName
   location: location
   tags: tags
@@ -60,14 +59,17 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   }
 }
 
-resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-10-01' = {
+resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-05-01' = {
   name: containerAppEnvName
   location: location
   tags: tags
-  sku: {
-    name: 'Consumption'
-  }
   properties: {
+    workloadProfiles: [
+      {
+        workloadProfileType: 'Consumption'
+        name: 'Consumption'
+      }
+    ]
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
@@ -78,7 +80,7 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-10-01' = {
   }
 }
 
-resource gymapi 'Microsoft.App/containerApps@2022-10-01' = {
+resource gymapi 'Microsoft.App/containerApps@2023-05-01' = {
   name: gymApiName
   location: location
   tags: tags
