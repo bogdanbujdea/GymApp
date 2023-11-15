@@ -17,4 +17,5 @@ RUN dotnet publish "src/GymApp/GymApp.csproj" -c Release -o /app/publish /p:UseA
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+ENV ASPNETCORE_HTTP_PORTS=80
 ENTRYPOINT ["dotnet", "GymApp.dll"]
