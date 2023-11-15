@@ -1,9 +1,6 @@
-name: Build and deploy .NET application to container app gym
+name: Deploy
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 env:
