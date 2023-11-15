@@ -105,7 +105,7 @@ resource api 'Microsoft.App/containerApps@2023-05-01' = {
           username: containerRegistry.listCredentials().username
         }
       ]
-      activeRevisionsMode: 'Multiple'
+      activeRevisionsMode: 'Single'
     }
     template: {
       containers: [
