@@ -83,7 +83,7 @@ jobs:
       - name: 'Login via Azure CLI'
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.GYMAPP_AZURE_CREDENTIALS }}
 
       - name: 'Setup dotnet'
         uses: actions/setup-dotnet@v1
