@@ -10,11 +10,11 @@ WORKDIR /src
 COPY ["src/GymApp/GymApp.csproj", "src/GymApp/"]
 RUN dotnet restore "src/GymApp/GymApp.csproj"
 COPY . .
-WORKDIR "/src/src/GymApp"
-RUN dotnet build "GymApp.csproj" -c Release -o /app/build
+WORKDIR "/src"
+RUN dotnet build "src/GymApp/GymApp.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "GymApp.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "src/GymApp/GymApp.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

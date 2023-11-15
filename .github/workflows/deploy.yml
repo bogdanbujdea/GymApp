@@ -10,7 +10,7 @@ env:
   DOTNET_VERSION: '8.0.x'
 
 jobs:
-  deploy-to-preview:
+  deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
