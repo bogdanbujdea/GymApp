@@ -10,54 +10,8 @@ env:
   DOTNET_VERSION: '8.0.x'
 
 jobs:
-  deploy-prod:
-    runs-on: ubuntu-latest
-    environment: Production
-    steps:
-      - name: 'Checkout GitHub Action'
-        uses: actions/checkout@main
-
-      - name: 'Login via Azure CLI'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.GYMAPP_AZURE_CREDENTIALS }}
-      - name: Bicep deployment
-        id: bicepDeployment
-        run: |
-          echo ${{ vars.AZURE_RG }}
-          az group create --name ${{ vars.AZURE_RG }} --location 'westeurope'
-          echo "created resource group"
-          az deployment group create --resource-group ${{ vars.AZURE_RG }} --template-file ./infrastructure/main.bicep --parameters applicationName='${{ vars.APP_NAME }}' --parameters containerRegistryName='${{ vars.REGISTRY_NAME }}'
-      - name: Get ACR name
-        id: getacrname
-        run: |
-          acrName=$(az acr list --resource-group ${{ vars.AZURE_RG }} --query "[0].name" -o tsv)
-          echo "::set-output name=acrName::$acrName"
-
-      - name: Get ACR Credentials
-        id: getacrcreds
-        run: |
-          loginServer=$(az acr list --resource-group ${{ vars.AZURE_RG }} --query "[0].loginServer" -o tsv)
-          loginName=$(az acr credential show -n ${{ steps.getacrname.outputs.acrName }} --resource-group ${{ vars.AZURE_RG }} --query username -o tsv)
-          password=$(az acr credential show -n ${{ steps.getacrname.outputs.acrName }} --resource-group ${{ vars.AZURE_RG }} --query "passwords[0].value" -o tsv)
-          echo "::set-output name=loginServer::$loginServer"
-          echo "::set-output name=loginName::$loginName"
-          echo "::set-output name=password::$password"
-
-      - name: 'Build and Push API Image to ACR'
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ steps.getacrcreds.outputs.loginServer }}
-          username: ${{ steps.getacrname.outputs.acrName }}
-          password: ${{ steps.getacrcreds.outputs.password }}
-      - run: |
-          docker build -f ./Dockerfile . -t ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
-          docker push ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
-          az containerapp update --name '${{ vars.APP_NAME }}-api' --resource-group ${{ vars.AZURE_RG }} --image ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
-
   deploy-preview:
     runs-on: ubuntu-latest
-    needs: [deploy-prod]
     environment: Preview
     steps:
       - name: 'Checkout GitHub Action'
@@ -70,7 +24,7 @@ jobs:
       - name: Bicep deployment
         id: bicepDeployment
         run: |
-          az group create --name '${{ vars.AZURE_RG }}' --location 'westeurope'
+          az group create --name ${{vars.AZURE_RG}} --location 'westeurope'
           az deployment group create --resource-group ${{ vars.AZURE_RG }} --template-file ./infrastructure/main.bicep --parameters applicationName='${{ vars.APP_NAME }}' --parameters containerRegistryName='${{ vars.REGISTRY_NAME }}'
       - name: Get ACR name
         id: getacrname
