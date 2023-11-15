@@ -10,15 +10,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHealthChecks()
     .AddCheck<StartupHealthCheck>("Startup", tags: new[] { "startup" })
     .AddCheck<ReadyHealthCheck>("Ready", tags: new[] { "ready" });
-builder.Services.AddDbContext<AppDbContext>(options =>
+/*builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var connectionString = builder.Configuration["SQL_CONNECTION_STRING"];
     options.UseSqlServer(connectionString);
 });
-
+*/
 builder.SetupSwagger();
 builder.SetupAuthenticationWithAuth0();
-GremlinWrapper.Initialize(builder.Configuration["GREMLIN_SERVER_PASSWORD"]!);
+//GremlinWrapper.Initialize(builder.Configuration["GREMLIN_SERVER_PASSWORD"]!);
 
 var app = builder.Build();
 
@@ -31,11 +31,13 @@ app.UseAuthorization();
 
 app.MapGet("/", () => "Hello gymapp!");
 
+/*
 app.MapGet("/users", async (AppDbContext dbContext) =>
 {
     Console.WriteLine($"Retrieving users from db");
     return await dbContext.Users.ToListAsync();
 }).RequireAuthorization("exerciseapp:read-write");
+
 
 app.MapPost("/users", async (AppUser user, AppDbContext dbContext) =>
 {
@@ -112,13 +114,14 @@ app.MapPost("/exercise", async (string exerciseName, string? exerciseRoutineName
     }
 
 });
-
+*/
 
 app.SetupHealthChecks();
 
+/*
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await dbContext.Database.MigrateAsync();
-}
+}*/
 app.Run();
