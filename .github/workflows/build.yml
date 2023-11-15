@@ -68,7 +68,7 @@ jobs:
           docker push ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
           az containerapp update --name '${{ vars.APP_NAME }}-api' --resource-group ${{ vars.AZURE_RG }} --image ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
 
-          #  deploy-to-blue:
+#  deploy-to-blue:
 #    runs-on: ubuntu-latest
 #    needs: [build-container-image]
 #    environment: Production
