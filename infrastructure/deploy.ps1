@@ -1,8 +1,8 @@
 
-$resourceGroupName = "rg-gymapp-test"
+$resourceGroupName = "rg-gymapp-development"
 $location = "eastus"
-$configFileName = "./configurations/qa.json"
-$acrName = "gymappregistryqa"
+$applicationName = "bbcgym"
+$containerRegistryName = "acrbbcgymdevregistry"
 
 ##!/bin/bash
 #
@@ -25,33 +25,38 @@ $acrName = "gymappregistryqa"
 
 az group create --name $resourceGroupName --location $location
 
-
-# Deploy ACR with Bicep
-az deployment group create --resource-group $resourceGroupName --template-file ./containerRegistry.bicep --parameters $configFileName
-
-# Build and Push Docker Image
-docker build -t <ACRLoginServer>/<ImageName>:<Tag> <DockerContext>
-az acr login --name <ACRName>
-docker push <ACRLoginServer>/<ImageName>:<Tag>
-
-# Deploy Container App with Bicep
-az deployment group create --resource-group <ResourceGroupName> --template-file <BicepFileForContainerApp> --parameters <ParametersIfAny>
-
-
-
-
-
-
 az deployment group create --resource-group $resourceGroupName `
  --template-file ./main.bicep `
- --parameters $configFileName 
- 
- az deployment group create --resource-group $resourceGroupName `
- --template-file ./main.bicep `
- --parameters $configFileName 
+ --parameters applicationName=$applicationName `
+ --parameters containerRegistryName=$containerRegistryName
 
-#containerAppPrincipalId=az containerapp show --name $containerAppName --resource-group $resourceGroupName --query "identity.principalId" --output tsv
+## Deploy ACR with Bicep
+#az deployment group create --resource-group $resourceGroupName --template-file ./containerRegistry.bicep --parameters $configFileName
 #
-#acrResourceId=$(az acr show --name $acrName --query "id" --output tsv)
+## Build and Push Docker Image
+#docker build -t <ACRLoginServer>/<ImageName>:<Tag> <DockerContext>
+#az acr login --name <ACRName>
+#docker push <ACRLoginServer>/<ImageName>:<Tag>
 #
-#z role assignment create --assignee $containerAppPrincipalId --role acrpull --scope $acrResourceId
+## Deploy Container App with Bicep
+#az deployment group create --resource-group <ResourceGroupName> --template-file <BicepFileForContainerApp> --parameters <ParametersIfAny>
+#
+#
+#
+#
+#
+#
+#az deployment group create --resource-group $resourceGroupName `
+# --template-file ./main.bicep `
+# --parameters $configFileName 
+# 
+# az deployment group create --resource-group $resourceGroupName `
+# --template-file ./main.bicep `
+# --parameters $configFileName 
+#
+##containerAppPrincipalId=az containerapp show --name $containerAppName --resource-group $resourceGroupName --query "identity.principalId" --output tsv
+##
+##acrResourceId=$(az acr show --name $acrName --query "id" --output tsv)
+##
+##z role assignment create --assignee $containerAppPrincipalId --role acrpull --scope $acrResourceId
+#
