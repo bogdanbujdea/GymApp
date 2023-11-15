@@ -1,7 +1,7 @@
 
-$resourceGroupName = "rg-gymapp-development"
+$resourceGroupName = "rg-gymapp-development2"
 $location = "eastus"
-$applicationName = "bbcgym"
+$applicationName = "bbcgymx"
 $containerRegistryName = "acrbbcgymdevregistry"
 
 ##!/bin/bash

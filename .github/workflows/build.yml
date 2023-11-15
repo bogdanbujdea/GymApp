@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: '7.0.x'
+  DOTNET_VERSION: '8.0.x'
 
 jobs:
   build-api-project:
@@ -22,7 +22,7 @@ jobs:
       - name: 'Install Dependencies'
         run: dotnet restore
       - name: 'Build project'
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore /warnaserror
 
   deploy-to-development:
     runs-on: ubuntu-latest
