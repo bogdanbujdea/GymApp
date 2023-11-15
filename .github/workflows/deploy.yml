@@ -12,9 +12,6 @@ env:
 jobs:
   build-api-project:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: './src/GymApp'
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
@@ -30,9 +27,6 @@ jobs:
   build-container-image:
     runs-on: ubuntu-latest
     needs: [build-api-project]
-#    defaults:
-#      run:
-#        working-directory: './src/GymApp'
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
@@ -73,9 +67,6 @@ jobs:
   deploy-to-blue:
     runs-on: ubuntu-latest
     needs: [build-container-image]
-    defaults:
-      run:
-        working-directory: './src/gymApi/'
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@main
