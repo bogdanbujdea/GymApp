@@ -14,7 +14,7 @@ param logAnalyticsWorkspaceName string = 'law-${applicationName}'
 param containerRegistryName string = 'acr${applicationName}'
 
 @description('The name of the container app that will be deployed')
-param gymApiName string = 'gym-api'
+param apiName string = '${applicationName}-api'
 
 @description('The docker container image to deploy')
 param containerImage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
@@ -80,8 +80,8 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-05-01' = {
   }
 }
 
-resource gymapi 'Microsoft.App/containerApps@2023-05-01' = {
-  name: gymApiName
+resource api 'Microsoft.App/containerApps@2023-05-01' = {
+  name: apiName
   location: location
   tags: tags
   properties: {
@@ -110,7 +110,7 @@ resource gymapi 'Microsoft.App/containerApps@2023-05-01' = {
     template: {
       containers: [
         {
-          name: gymApiName
+          name: apiName
           image: containerImage
           resources: {
             cpu: json('1')
