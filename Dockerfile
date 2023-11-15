@@ -1,5 +1,3 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -7,10 +5,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["GymApp/GymApp.csproj", "GymApp/"]
-RUN dotnet restore "GymApp/GymApp.csproj"
+COPY ["src/GymApp/GymApp.csproj", "src/GymApp/"]
+RUN dotnet restore "src/GymApp/GymApp.csproj"
 COPY . .
-WORKDIR "/src/GymApp"
+WORKDIR "/src/src/GymApp"
 RUN dotnet build "GymApp.csproj" -c Release -o /app/build
 
 FROM build AS publish

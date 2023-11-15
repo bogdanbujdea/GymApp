@@ -60,7 +60,7 @@ jobs:
           password: ${{ steps.getacrcreds.outputs.password }}
       - run: |
           dir
-          docker build -f ./src/GymApp/Dockerfile ./src -t ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
+          docker build -f ./Dockerfile . -t ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
           docker push ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
 
 
@@ -117,7 +117,7 @@ jobs:
       - name: 'Build project'
         run: dotnet build --no-restore
       - name: Test
-        run: dotnet test --no-build --verbosity normal  --logger trx --environment BLUE_SLOT_URL="https://${{ steps.getbluesloturl.outputs.bluesloturl }}/gymForecast"
+        run: dotnet test --no-build --verbosity normal  --logger trx --environment BLUE_SLOT_URL="https://${{ steps.getbluesloturl.outputs.bluesloturl }}"
 
   promote-to-green:
     runs-on: ubuntu-latest
