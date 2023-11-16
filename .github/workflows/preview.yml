@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   workflow_run:
-    workflows: ["Build"] 
+    workflows: ["Development"] 
     types:
       - completed
     branches:
@@ -10,6 +10,9 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
+  AZURE_RG: 'rg-gymapp-preview'
+  APP_NAME: 'gymapp'
+  REGISTRY_NAME: 'acrgymregistrypreview'
 
 jobs:
   deploy-preview:
@@ -26,20 +29,20 @@ jobs:
       - name: Bicep deployment
         id: bicepDeployment
         run: |
-          az group create --name ${{vars.AZURE_RG}} --location 'westeurope'
-          az deployment group create --resource-group ${{ vars.AZURE_RG }} --template-file ./infrastructure/main.bicep --parameters applicationName='${{ vars.APP_NAME }}' --parameters containerRegistryName='${{ vars.REGISTRY_NAME }}'
+          az group create --name ${{env.AZURE_RG}} --location 'westeurope'
+          az deployment group create --resource-group ${{ env.AZURE_RG }} --template-file ./infrastructure/main.bicep --parameters applicationName='${{ env.APP_NAME }}' --parameters containerRegistryName='${{ env.REGISTRY_NAME }}'
       - name: Get ACR name
         id: getacrname
         run: |
-          acrName=$(az acr list --resource-group ${{ vars.AZURE_RG }} --query "[0].name" -o tsv)
+          acrName=$(az acr list --resource-group ${{ env.AZURE_RG }} --query "[0].name" -o tsv)
           echo "::set-output name=acrName::$acrName"
 
       - name: Get ACR Credentials
         id: getacrcreds
         run: |
-          loginServer=$(az acr list --resource-group ${{ vars.AZURE_RG }} --query "[0].loginServer" -o tsv)
-          loginName=$(az acr credential show -n ${{ steps.getacrname.outputs.acrName }} --resource-group ${{ vars.AZURE_RG }} --query username -o tsv)
-          password=$(az acr credential show -n ${{ steps.getacrname.outputs.acrName }} --resource-group ${{ vars.AZURE_RG }} --query "passwords[0].value" -o tsv)
+          loginServer=$(az acr list --resource-group ${{ env.AZURE_RG }} --query "[0].loginServer" -o tsv)
+          loginName=$(az acr credential show -n ${{ steps.getacrname.outputs.acrName }} --resource-group ${{ env.AZURE_RG }} --query username -o tsv)
+          password=$(az acr credential show -n ${{ steps.getacrname.outputs.acrName }} --resource-group ${{ env.AZURE_RG }} --query "passwords[0].value" -o tsv)
           echo "::set-output name=loginServer::$loginServer"
           echo "::set-output name=loginName::$loginName"
           echo "::set-output name=password::$password"
@@ -53,4 +56,4 @@ jobs:
       - run: |
           docker build -f ./Dockerfile . -t ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
           docker push ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
-          az containerapp update --name '${{ vars.APP_NAME }}-api' --resource-group ${{ vars.AZURE_RG }} --image ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
+          az containerapp update --name '${{ env.APP_NAME }}-api' --resource-group ${{ env.AZURE_RG }} --image ${{ steps.getacrcreds.outputs.loginServer }}/gymapi:${{ github.sha }}
